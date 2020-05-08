@@ -1,1 +1,49 @@
-Test
+<!DOCTYPE html>
+<!-- https://github.com/vasturiano/3d-force-graph -->
+<head>
+  <style> body { margin: 0; } </style>
+
+  <script src="//unpkg.com/three"></script>
+  <script src="//unpkg.com/three-spritetext"></script>
+
+  <script src="//unpkg.com/3d-force-graph"></script>
+  <!--<script src="../../dist/3d-force-graph.js"></script>-->
+</head>
+
+<body>
+  <div id="3d-graph"></div>
+
+  <script>
+    const Graph = ForceGraph3D()
+      (document.getElementById('3d-graph'))
+        .jsonUrl('data.json')
+        .nodeAutoColorBy('group')
+        .nodeThreeObject(node => {
+          // use a sphere as a drag handle
+          const obj = new THREE.Mesh(
+            new THREE.SphereGeometry(10),
+            new THREE.MeshBasicMaterial({ depthWrite: false, transparent: true, opacity: 0.0 })
+          );
+
+          // add text sprite as child
+          const sprite = new SpriteText(node.id);
+          sprite.color = node.color;
+          sprite.textHeight = 8;
+          obj.add(sprite);
+
+          return obj;
+        })
+        .linkDirectionalParticles(2)
+        .linkWidth(2)
+        .onNodeDragEnd(node => {
+          node.fx = node.x;
+          node.fy = node.y;
+          node.fz = node.z;
+        });
+
+    // Spread nodes a little wider
+    // charge, link or center
+    Graph.d3Force('center').strength(-400);
+
+  </script>
+</body>
